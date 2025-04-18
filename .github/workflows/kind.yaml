@@ -54,8 +54,7 @@ jobs:
       - name: Show Kubernetes version, nodes and creation time
         run: |
           echo "✅ Kubernetes Version:"
-          kubectl version --short --client=true
-          kubectl version --short
+          kubectl version --client
 
           echo "✅ Cluster Nodes:"
           kubectl get nodes -o wide
@@ -65,3 +64,4 @@ jobs:
           echo $NODE_COUNT
 
           echo "⏱ Cluster creation time: ${{ steps.create_cluster.outputs.CLUSTER_TIME }} seconds"
+

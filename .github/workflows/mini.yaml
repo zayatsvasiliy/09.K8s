@@ -1,7 +1,7 @@
 name: Minikube
 
 on:
-  pull_request:
+  push:
 
 jobs:
   setup-minikube:

@@ -45,6 +45,12 @@ jobs:
           END=$(date +%s)
           echo "CLUSTER_TIME=$((END - START))" >> $GITHUB_OUTPUT
 
+      - name: Set kubectl context
+        run: |
+          # Убедиться, что контекст Kubernetes настроен правильно
+          kubectl cluster-info
+          kubectl config use-context kind-kind
+
       - name: Show Kubernetes version, nodes and creation time
         run: |
           echo "✅ Kubernetes Version:"

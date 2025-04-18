@@ -2,7 +2,7 @@ name: KinD
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   setup-kind:
     runs-on: ubuntu-latest

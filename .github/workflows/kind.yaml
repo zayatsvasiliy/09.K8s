@@ -1,26 +1,25 @@
-name: KinD
+name: Setup KinD Cluster
+
 on:
   push:
     branches:
       - master
+
 jobs:
   setup-kind:
     runs-on: ubuntu-latest
-    container:
-      image: docker:20.10.24
-      options: --privileged
+
     services:
       docker:
         image: docker:dind
-        privileged: true
+        options: --privileged
         ports:
           - 2375:2375
-        options: >-
-          --privileged
-          --env DOCKER_TLS_CERTDIR=
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Install dependencies
         run: |
           apk add --no-cache curl bash git go
@@ -28,6 +27,12 @@ jobs:
           chmod +x /usr/local/bin/kind
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+      - name: Set up Docker (in Docker)
+        run: |
+          dockerd &  # Запуск Docker Daemon
+          sleep 5    # Ожидание старта Docker
+
       - name: Create KinD cluster and measure time
         id: create_cluster
         run: |
@@ -36,15 +41,18 @@ jobs:
           kind create cluster --name kind --image kindest/node:v1.29.2
           END=$(date +%s)
           echo "CLUSTER_TIME=$((END - START))" >> $GITHUB_OUTPUT
+
       - name: Show Kubernetes version, nodes and creation time
         run: |
-          echo "Kubernetes Version:"
+          echo "✅ Kubernetes Version:"
           kubectl version --short --client=true
           kubectl version --short
-          echo "Cluster Nodes:"
+
+          echo "✅ Cluster Nodes:"
           kubectl get nodes -o wide
 
-          echo "Number of Nodes:"
-          kubectl get nodes --no-headers | wc -l
+          echo "✅ Number of Nodes:"
+          NODE_COUNT=$(kubectl get nodes --no-headers | wc -l)
+          echo $NODE_COUNT
 
-          echo "Cluster creation time: ${{ steps.create_cluster.outputs.CLUSTER_TIME }} seconds"
+          echo "⏱ Cluster creation time: ${{ steps.create_cluster.outputs.CLUSTER_TIME }} seconds"

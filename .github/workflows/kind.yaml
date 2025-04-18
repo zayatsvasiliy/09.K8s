@@ -1,4 +1,4 @@
-name: Setup KinD Cluster
+name: KinD
 
 on:
   push:

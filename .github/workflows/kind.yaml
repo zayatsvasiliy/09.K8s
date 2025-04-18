@@ -3,7 +3,7 @@ name: Setup KinD Cluster
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   setup-kind:
@@ -24,10 +24,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl bash git gnupg2 lsb-release
-          curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
-          chmod +x /usr/local/bin/kind
+          mkdir -p $HOME/bin
+          curl -Lo $HOME/bin/kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+          chmod +x $HOME/bin/kind
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Set up Docker (in Docker)
         run: |

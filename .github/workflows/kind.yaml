@@ -3,7 +3,7 @@ name: Setup KinD Cluster
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   setup-kind:

@@ -33,13 +33,13 @@ jobs:
 
       - name: Set up Docker (in Docker)
         run: |
-          sudo dockerd &  # Запуск Docker Daemon
-          sleep 5          # Ожидание старта Docker
+          sudo dockerd &
+          sleep 5
 
       - name: Create KinD cluster and measure time
         id: create_cluster
         run: |
-          echo "Creating KinD cluster..."
+          echo "Creating KinD cluster"
           START=$(date +%s)
           kind create cluster --name kind --image kindest/node:v1.29.2
           END=$(date +%s)
@@ -47,21 +47,20 @@ jobs:
 
       - name: Set kubectl context
         run: |
-          # Убедиться, что контекст Kubernetes настроен правильно
           kubectl cluster-info
           kubectl config use-context kind-kind
 
       - name: Show Kubernetes version, nodes and creation time
         run: |
-          echo "✅ Kubernetes Version:"
+          echo "Kubernetes Version:"
           kubectl version --client
 
-          echo "✅ Cluster Nodes:"
+          echo "Cluster Nodes:"
           kubectl get nodes -o wide
 
-          echo "✅ Number of Nodes:"
+          echo "Number of Nodes:"
           NODE_COUNT=$(kubectl get nodes --no-headers | wc -l)
           echo $NODE_COUNT
 
-          echo "⏱ Cluster creation time: ${{ steps.create_cluster.outputs.CLUSTER_TIME }} seconds"
+          echo "Cluster creation time: ${{ steps.create_cluster.outputs.CLUSTER_TIME }} seconds"
 

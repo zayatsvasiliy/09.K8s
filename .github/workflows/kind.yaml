@@ -1,0 +1,50 @@
+name: KinD
+on:
+  push:
+    branches:
+      - main
+jobs:
+  setup-kind:
+    runs-on: ubuntu-latest
+    container:
+      image: docker:20.10.24
+      options: --privileged
+    services:
+      docker:
+        image: docker:dind
+        privileged: true
+        ports:
+          - 2375:2375
+        options: >-
+          --privileged
+          --env DOCKER_TLS_CERTDIR=
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          apk add --no-cache curl bash git go
+          curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+          chmod +x /usr/local/bin/kind
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - name: Create KinD cluster and measure time
+        id: create_cluster
+        run: |
+          echo "Creating KinD cluster..."
+          START=$(date +%s)
+          kind create cluster --name kind --image kindest/node:v1.29.2
+          END=$(date +%s)
+          echo "CLUSTER_TIME=$((END - START))" >> $GITHUB_OUTPUT
+      - name: Show Kubernetes version, nodes and creation time
+        run: |
+          echo "Kubernetes Version:"
+          kubectl version --short --client=true
+          kubectl version --short
+          echo "Cluster Nodes:"
+          kubectl get nodes -o wide
+
+          echo "Number of Nodes:"
+          kubectl get nodes --no-headers | wc -l
+
+          echo "Cluster creation time: ${{ steps.create_cluster.outputs.CLUSTER_TIME }} seconds"
